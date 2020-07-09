@@ -790,6 +790,6 @@ app.post('/signin', function (req, res) {
     })
 })
 
-app.listen(3040, function () {
+app.listen(process.env.PORT, function () {
     console.log('port is running on 3040')
 });
