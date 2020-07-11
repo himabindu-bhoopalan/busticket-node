@@ -3,8 +3,8 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoClient = require('mongodb')
-// const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
+// const url = 'mongodb://localhost:27017';
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 
@@ -797,6 +797,6 @@ app.post('/signin', function (req, res) {
     })
 })
 
-app.listen(3040, function () {
-    console.log('port is running on 3040')
+app.listen(process.env.PORT, function () {
+    console.log('port is running')
 });
