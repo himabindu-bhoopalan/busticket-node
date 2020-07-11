@@ -3,7 +3,8 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoClient = require('mongodb')
-const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
+// const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
+const url = 'mongodb://localhost:27017';
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 
@@ -619,7 +620,7 @@ app.get('/allbuses', function (req, res) {
         var userData = db.collection("Bus").find({ "approval_status": "pending" }).toArray( //selecting the db and converting the data 
             function (err, result) {
                 if (err) throw err;
-                console.log(result);
+                // console.log(result);
                 res.json(result);
                 client.close()
             }
@@ -655,6 +656,7 @@ app.post('/signup', function (req, res) {
     if (req.body.category == "User") {
         var mdb = "passenger";
         req.body.tickets = [];
+    
         // console.log(mdb);
     } else {
         var mdb = "bus_operator";
@@ -695,7 +697,8 @@ app.post('/signup', function (req, res) {
 
                 //finding a user with similar credentials
                 //you ask why the 'or' condition -suppose the user has not filled the field then ..?
-                console.log('data which is going to be inserted ' + req.body);
+                // console.log('data which is going to be inserted ');
+                // console.log(req.body)
                 db.collection(mdb).findOne({ $or: [{ email: req.body.email }, { phnumber: req.body.phnumber }, { name: req.body.name }] }, function (err, data) {
 
                     if (err) throw err;
@@ -737,7 +740,8 @@ app.post('/signup', function (req, res) {
 });             //app.post
 
 app.post('/signin', function (req, res) {
-    // console.log(req.body);
+    console.log(req.body);
+    // [{category: "User"} userInput: "sindukumar", password: "sindu123"}]
     let a = req.body;
     if (a[1].category == "User") {
         var mdb = "passenger";
@@ -753,43 +757,46 @@ app.post('/signin', function (req, res) {
         if (err) throw err;
         var db = client.db("busDb");
        
-        // var query1=a[2].email.trim()
-        // a[2].email=query1;
-        // console.log(a[2]);
-        db.collection(mdb).findOne(a[2], function (err, data) { //finding using the email or number or name
+        db.collection(mdb).findOne(a[2], function (err, data) {     //finding using the email or number or name
             if (err) throw err;
-            if(!data){
+            if(data==null){          //if data is not found then send notification
+                client.close();
                 res.json({
-                    status:400,
+                    status:404,
                     message:"No such user found"
                 })
-            }
-            console.log('data' + data);
-            console.log(a[0].password, a[2]);
+            }else{
+
+            //     console.log('data' + data);
+            // console.log(a[0].password, a[2]);
             bcrypt.compare(a[0].password, data.password, function (err, result) {
                 if (err) throw err;
                 // console.log(result);
                 // console.log(data);
                 if (result) {
+                   
                     res.json({
                         status: 200,
                         message: "User found!",
                         userdata: data
                     })
-
+                    client.close();
                 }
                 else {
+                    client.close();
                     res.json({
                         status: 400,
-                        message: "user not found"
+                        message: "wrong password.Please try again"
 
-                    })
+                    })            
                 }
+            
             })
+        }
         })
     })
 })
 
-app.listen(process.env.PORT, function () {
+app.listen(3040, function () {
     console.log('port is running on 3040')
 });
