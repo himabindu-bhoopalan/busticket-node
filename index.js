@@ -3,8 +3,8 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoClient = require('mongodb')
-const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
-// const url = 'mongodb://localhost:27017';
+// const url = 'mongodb+srv://hima:nature@cluster0-6o34c.mongodb.net/test?retryWrites=true&w=majority';
+const url = 'mongodb://localhost:27017';
 const bcrypt = require('bcrypt');
 const saltRounds = 10
 
@@ -15,9 +15,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //bus details updated by the operator
 app.put('/updatebus', function (req, res) {
-    
+
     var id = req.body._id;
-    console.log(id);
+    // console.log(id);
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db('busDb');
@@ -25,24 +25,23 @@ app.put('/updatebus', function (req, res) {
         db.collection('Bus').updateOne({ _id: ObjectId(id) }, {
             $set: {
                 Arrival: req.body.Arrival,
-                Bus_Name:req.body.Bus_Name,
-                Date:req.body.Date,
-                Departure:req.body.Departure,
-                Destination:req.body.Destination,
-                Source:req.body.Source,
+                Date: req.body.Date,
+                Departure: req.body.Departure,
+                Destination: req.body.Destination,
+                Source: req.body.Source,
             }
         }, function (err, data) {
             if (err) throw err;
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "updated!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
+                    status: 400,
                     message: 'not updated'
                 })
             }
@@ -54,7 +53,7 @@ app.put('/updatebus', function (req, res) {
 app.put('/userdelete', function (req, res) {
     //{ reason: 'i dont like her name', _id: '5ef0ea9442c34c22ecb62bd0' }
     var id = req.body._id;
-    console.log(id);
+    // console.log(id);
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db('busDb');
@@ -68,13 +67,13 @@ app.put('/userdelete', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "deleted!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
+                    status: 400,
                     message: 'not deleted'
                 })
             }
@@ -103,13 +102,13 @@ app.put('/updateprofile', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
+                    status: 400,
                     message: 'not updated..something went wrong!Try again after sometime'
                 })
             }
@@ -120,30 +119,30 @@ app.put('/updateprofile', function (req, res) {
 });
 
 //getting the user-id of passenger to store in local storage when he is reserving the tickets
-app.post('/getuserid',function(req,res){
+app.post('/getuserid', function (req, res) {
     // console.log(req.body)
-    var cat=req.body;   //cat is an object 
-    
+    var cat = req.body;   //cat is an object 
 
-    mongoClient.connect(url,{ useUnifiedTopology: true },function(err,client){
-        if(err) throw err;
-        var db=client.db("busDb")
+
+    mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
+        if (err) throw err;
+        var db = client.db("busDb")
         var ObjectId = require('mongodb').ObjectID;
-        var userData= db.collection("passenger").findOne(cat,function(err, result){
+        var userData = db.collection("passenger").findOne(cat, function (err, result) {
             if (err) throw err;
             // console.log(result);
-            if(result){
+            if (result) {
                 res.json({
-                    status:200,
-                    userid:result._id
+                    status: 200,
+                    userid: result._id
                 });
-            }else{
+            } else {
                 res.json({
-                    status:400,
-                    message:error
+                    status: 400,
+                    message: error
                 })
             }
-            
+
             client.close();
         })
 
@@ -152,32 +151,32 @@ app.post('/getuserid',function(req,res){
 });
 
 //get all the buses of the operator
-app.get('/findbusofoperator/:id',function(req,res){
+app.get('/findbusofoperator/:id', function (req, res) {
     // console.log(req.params)
-    var cat=req.params.id;
+    var cat = req.params.id;
     // console.log('inside findbusofoperator get method');
     // console.log(cat);
 
-    mongoClient.connect(url,{ useUnifiedTopology: true },function(err,client){
-        if(err) throw err;
-        var db=client.db("busDb")
-        var userData= db.collection("Bus").find({"Bus_operator_id":cat}).toArray(
-            function(err, result){
-            if (err) throw err;
-            // console.log(result);
-            if(!result){
-                res.json({
-                    status:400,
-                    message:"no data found"
-                })
-            }else{
-                res.json({
-                    status:200,
-                    data:result
-                });
-            }
-            client.close();
-        })
+    mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
+        if (err) throw err;
+        var db = client.db("busDb")
+        var userData = db.collection("Bus").find({ "Bus_operator_id": cat }).toArray(
+            function (err, result) {
+                if (err) throw err;
+                // console.log(result);
+                if (!result) {
+                    res.json({
+                        status: 400,
+                        message: "no data found"
+                    })
+                } else {
+                    res.json({
+                        status: 200,
+                        data: result
+                    });
+                }
+                client.close();
+            })
 
     })
 
@@ -185,7 +184,7 @@ app.get('/findbusofoperator/:id',function(req,res){
 
 //to add the bus in bus operator db 
 app.put('/addbustooperator', function (req, res) {
-    
+
     // console.log(req.body);
     var id = req.body._id;
 
@@ -195,14 +194,14 @@ app.put('/addbustooperator', function (req, res) {
         var ObjectId = require('mongodb').ObjectID;
         db.collection('bus_operator').updateOne({ _id: ObjectId(id) }, {
             $push: {
-                my_buses: {"Bus_ID":req.body.Bus_ID,Bus_Name:req.body.Bus_Name}
+                my_buses: { "Bus_ID": req.body.Bus_ID, Bus_Name: req.body.Bus_Name }
             }
         }, function (err, data) {
             if (err) throw err;
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
@@ -217,15 +216,17 @@ app.put('/addbustooperator', function (req, res) {
 
 });
 
-//*******TO CANCEL THE TICKETS in tickets db ********
+//****TO CANCEL THE TICKETS in tickets db *****
 app.put('/cancelticketfromdb', function (req, res) {
     // let obj={"ticketid":ticketid}
+    // console.log('inside cancel ticket from tickets db');
     // console.log(req.body);
+
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db('busDb');
 
-        db.collection('Ticket').updateOne({ ticketid:req.body.ticketid}, {
+        db.collection('Ticket').updateOne({ ticketid: req.body.ticketid }, {
             $set: {
                 "Status": "cancelled"
             }
@@ -234,14 +235,14 @@ app.put('/cancelticketfromdb', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
-                    message: 'not updated..something went wrong!Try again after sometime'
+                    status: 400,
+                    message: 'not updated'
                 })
             }
 
@@ -255,13 +256,13 @@ app.put('/cancelticketfromdb', function (req, res) {
 app.put('/cancelticket', function (req, res) {
     // let obj={"_id":userid,"ticketid":ticketid}
     var id = req.body._id;
-   
+    // console.log('inside cancel ticket from passenger db ');
     // console.log(req.body);
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db('busDb');
         var ObjectId = require('mongodb').ObjectID;                // Authors:{$elemMatch:{Slug:"slug"}}
-        db.collection('passenger').updateOne({ _id: ObjectId(id),tickets:{$elemMatch:{ticketid:req.body.ticketid}}}, {
+        db.collection('passenger').updateOne({ _id: ObjectId(id), tickets: { $elemMatch: { ticketid: req.body.ticketid } } }, {
             $set: {
                 "tickets.$.Status": "cancelled"
             }
@@ -270,14 +271,14 @@ app.put('/cancelticket', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
-                    message: 'not updated..something went wrong!Try again after sometime'
+                    status: 400,
+                    message: 'not updated'
                 })
             }
 
@@ -285,22 +286,80 @@ app.put('/cancelticket', function (req, res) {
     })
 
 });
-app.get('/getuserdata/:id',function(req,res){
+
+
+//*******CHANGE SEATS TO AVAILABLE IN THE BUS DB AFTER CANCELLED******
+app.put('/bus/cancelseats', function (req, res) {
+    // obj3={"seats":seatsbooked,"Bus_Name":busname,"Bus_ID":busid} //SEATSBOOKED=[3,4,5]
+    var seats = req.body.seats;
+    // console.log(seats);
+    // console.log('inside buscancel');
+    // console.log(req.body);
+    mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
+        if (err) throw err;
+        var db = client.db('busDb');
+        var ObjectId = require('mongodb').ObjectID;                // Authors:{$elemMatch:{Slug:"slug"}}
+        db.collection('Bus').findOne({ Bus_Name: req.body.Bus_Name, Bus_ID: req.body.Bus_ID, Source: req.body.Source, Destination: req.body.Destination }, (err, data) => {
+            if (err) throw err;
+            console.log(data);
+
+            var a = data.all_seats
+            for (var i = 0; i < seats.length; i++) {
+                var s = seats[i];
+                if (a[s] == 'Booked') {
+                    a[s] = "Available";
+
+                }
+
+
+            }
+            console.log(a); //changed seats 
+
+            db.collection('Bus').updateOne({ Bus_Name: req.body.Bus_Name, Bus_ID: req.body.Bus_ID, Source: req.body.Source, Destination: req.body.Destination }, {
+                $set: {
+                    "all_seats": a
+                }
+            }, function (err, data) {
+                if (err) throw err;
+                client.close();
+                if (data.modifiedCount == 1) {
+                    res.json({
+                        status: 200,
+                        message: "Updated!!"
+                    })
+                }
+                else {
+                    res.json({
+                        status: 400,
+                        message: 'not updated'
+                    })
+                }
+
+            })
+        })
+    })
+
+
+});
+
+//------------------------------------------------------------------------------------------------------
+
+app.get('/getuserdata/:id', function (req, res) {
     // console.log(req.params)
-    var cat=req.params.id;
+    var cat = req.params.id;
     // console.log('inside the find a single bus data get method');
     // console.log(cat);
 
-    mongoClient.connect(url,{ useUnifiedTopology: true },function(err,client){
-        if(err) throw err;
-        var db=client.db("busDb")
+    mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
+        if (err) throw err;
+        var db = client.db("busDb")
         var ObjectId = require('mongodb').ObjectID;
-        var userData= db.collection("passenger").findOne({_id:ObjectId(cat)},function(err, result){
+        var userData = db.collection("passenger").findOne({ _id: ObjectId(cat) }, function (err, result) {
             if (err) throw err;
             // console.log(result);
             res.json({
-                status:200,
-                message:result
+                status: 200,
+                message: result
             });
             client.close();
         })
@@ -351,7 +410,7 @@ app.put('/updateseats', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
@@ -386,7 +445,7 @@ app.put('/userticket', function (req, res) {
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
@@ -409,15 +468,34 @@ app.post('/addbus', function (req, res) {
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db("busDb")
-        db.collection("Bus").insert(req.body, function (err, data) {
+        db.collection("Bus").findOne( {Bus_ID:req.body.Bus_ID } , function (err, data) {
+
             if (err) throw err;
-            client.close();
-            res.json({
-                status: 200,
-                message: "data inserted"
-            })
+
+            if (!data) {      //suppose data is not found-insert the data
+
+                db.collection("Bus").insert(req.body, function (err, data) {
+                    if (err) throw err;
+                    client.close();
+                    res.json({
+                        status: 200,
+                        message: "data inserted"
+                    })
+
+                })
+               
+
+            } else {
+                client.close();
+                res.json({
+                    status: 400,
+                    message: "error.Bus found with same name."
+
+                })
+            }
 
         })
+
 
     })
 
@@ -453,7 +531,7 @@ app.post('/findbus', function (req, res) {
                     client.close()
                     res.json({
                         status: 400,
-                        data:'no buses found'
+                        data: 'no buses found'
                     })
 
 
@@ -463,19 +541,19 @@ app.post('/findbus', function (req, res) {
         )
     })
 })
- 
 
-app.get('/getbusdata/:id',function(req,res){
+
+app.get('/getbusdata/:id', function (req, res) {
     // console.log(req.params)
-    var cat=req.params.id;
+    var cat = req.params.id;
     // console.log('inside the find a single bus data get method');
     // console.log(cat);
 
-    mongoClient.connect(url,{ useUnifiedTopology: true },function(err,client){
-        if(err) throw err;
-        var db=client.db("busDb")
+    mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
+        if (err) throw err;
+        var db = client.db("busDb")
         var ObjectId = require('mongodb').ObjectID;
-        var userData= db.collection("Bus").findOne({_id:ObjectId(cat)},function(err, result){
+        var userData = db.collection("Bus").findOne({ _id: ObjectId(cat) }, function (err, result) {
             if (err) throw err;
             // console.log(result);
             res.json(result);
@@ -489,29 +567,29 @@ app.get('/getbusdata/:id',function(req,res){
 
 
 app.put('/busapproval', function (req, res) {
-    
+
     var id = req.body._id;
-  
+
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db('busDb');
         var ObjectId = require('mongodb').ObjectID;
         db.collection('Bus').updateOne({ _id: ObjectId(id) }, {
             $set: {
-             approval_status:"approved"
+                approval_status: "approved"
             }
         }, function (err, data) {
             if (err) throw err;
             // console.log(data)
-            client.close(); 
+            client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200
+                    status: 200
                 })
             }
             else {
                 res.json({
-                    status:400
+                    status: 400
                 })
             }
 
@@ -556,20 +634,20 @@ app.put('/operatorapproval', function (req, res) {
         var ObjectId = require('mongodb').ObjectID;
         db.collection('bus_operator').updateOne({ _id: ObjectId(id) }, {
             $set: {
-                approval : "approved"
+                approval: "approved"
             }
         }, function (err, data) {
             if (err) throw err;
             client.close();
             if (data.modifiedCount == 1) {
                 res.json({
-                    status:200,
+                    status: 200,
                     message: "Updated!!"
                 })
             }
             else {
                 res.json({
-                    status:400,
+                    status: 400,
                     message: 'not updated..something went wrong!Try again after sometime'
                 })
             }
@@ -629,6 +707,27 @@ app.get('/allbuses', function (req, res) {
     })
 })
 
+//to fetch all approved buses for suggestions
+app.get('/allbusesapproved', function (req, res) {
+    a=new Date();
+    // console.log(a)
+    mongoClient.connect(url, function (err, client) { //connecting to mongodb
+        if (err) throw err;
+        var db = client.db("busDb") //fetching the db 
+        // { qty: { $gt: 20 } }"createdAt" : new Date("2010-01-01"){ $gte: new Date(dateVar).toISOString() }
+        var userData = db.collection("Bus").find({ "approval_status": "approved" }).toArray( //selecting the db and converting the data 
+            function (err, result) {
+                if (err) throw err;
+                // console.log(result);
+                res.json({
+                    status:200,
+                    data:result
+                });
+                client.close()
+            }
+        )
+    })
+})
 //getting all the unapproved bus operators
 app.get('/allbusops', function (req, res) {
     mongoClient.connect(url, function (err, client) { //connecting to mongodb
@@ -657,7 +756,7 @@ app.post('/signup', function (req, res) {
     if (req.body.category == "User") {
         var mdb = "passenger";
         req.body.tickets = [];
-    
+
         // console.log(mdb);
     } else {
         var mdb = "bus_operator";
@@ -675,7 +774,7 @@ app.post('/signup', function (req, res) {
         for (var i = 0; i < 5; i++) {
             unique += characters.charAt(Math.floor(Math.random() * len));
         }
-      
+
         return unique
     }
 
@@ -700,7 +799,7 @@ app.post('/signup', function (req, res) {
                 //you ask why the 'or' condition -suppose the user has not filled the field then ..?
                 // console.log('data which is going to be inserted ');
                 // console.log(req.body)
-                db.collection(mdb).findOne({ $or: [{ email: req.body.email }, { phnumber: req.body.phnumber }, { name: req.body.name }] }, function (err, data) {
+                db.collection(mdb).findOne({ $or: [{ email: req.body.email }, { name: req.body.name }] }, function (err, data) {
 
                     if (err) throw err;
 
@@ -720,7 +819,7 @@ app.post('/signup', function (req, res) {
                         client.close();
                         res.json({
                             status: 400,
-                            message: "error"
+                            message: "error.user found with email id or name exists"
 
                         })
                     }
@@ -743,7 +842,7 @@ app.post('/signup', function (req, res) {
 
 
 app.post('/signin', function (req, res) {
-    console.log(req.body);
+    // console.log(req.body);
     // [{category: "User"} userInput: "sindukumar", password: "sindu123"}]
     let a = req.body;
     if (a[1].category == "User") {
@@ -759,47 +858,50 @@ app.post('/signin', function (req, res) {
     mongoClient.connect(url, { useUnifiedTopology: true }, function (err, client) {
         if (err) throw err;
         var db = client.db("busDb");
-       
+
         db.collection(mdb).findOne(a[2], function (err, data) {     //finding using the email or number or name
             if (err) throw err;
-            if(data==null){          //if data is not found then send notification
+            if (data == null) {          //if data is not found then send notification
                 client.close();
                 res.json({
-                    status:404,
-                    message:"No such user found"
+                    status: 404,
+                    message: "No such user found"
                 })
-            }else{
+            } else {
 
-            //     console.log('data' + data);
-            // console.log(a[0].password, a[2]);
-            bcrypt.compare(a[0].password, data.password, function (err, result) {
-                if (err) throw err;
-                // console.log(result);
-                // console.log(data);
-                if (result) {
-                   
-                    res.json({
-                        status: 200,
-                        message: "User found!",
-                        userdata: data
-                    })
-                    client.close();
-                }
-                else {
-                    client.close();
-                    res.json({
-                        status: 400,
-                        message: "wrong password.Please try again"
+                //     console.log('data' + data);
+                // console.log(a[0].password, a[2]);
+                bcrypt.compare(a[0].password, data.password, function (err, result) {
+                    if (err) throw err;
+                    // console.log(result);
+                    // console.log(data);
+                    if (result) {
 
-                    })            
-                }
-            
-            })
-        }
+                        res.json({
+                            status: 200,
+                            message: "User found!",
+                            userdata: data
+                        })
+                        client.close();
+                    }
+                    else {
+                        client.close();
+                        res.json({
+                            status: 400,
+                            message: "wrong password.Please try again"
+
+                        })
+                    }
+
+                })
+            }
         })
     })
 })
 
-app.listen(process.env.PORT, function () {
+// app.listen(process.env.PORT, function () {
+//     console.log('port is running')
+// });
+app.listen(3040, function () {
     console.log('port is running')
 });
