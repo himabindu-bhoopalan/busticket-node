@@ -130,16 +130,16 @@ app.post('/getuserid', function (req, res) {
         var ObjectId = require('mongodb').ObjectID;
         var userData = db.collection("passenger").findOne(cat, function (err, result) {
             if (err) throw err;
-            // console.log(result);
+            console.log(result);
             if (result) {
                 res.json({
                     status: 200,
-                    userid: result._id
+                    user_data: result
                 });
             } else {
                 res.json({
                     status: 400,
-                    message: error
+                    message: 'user not found'
                 })
             }
 
